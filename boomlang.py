@@ -1,10 +1,9 @@
 import sys
 
-
-class Boomlang:
+class BoomLang:
     def __init__(self):
-        self.data = [0] * 256
-        self.ptr = 0
+        self.data = [0] * 256  # 메모리
+        self.ptr = 0            # 포인터 위치
 
     def toNumber(self, code: str) -> int:
         """붐/뱅 개수로 숫자 계산"""
@@ -25,7 +24,7 @@ class Boomlang:
             return "PTR_LEFT"
         if "붐붐" in code:
             return "RESET"
-        if "짝" in code:
+        if "칰ㅋ" in code:
             return "PRINT_ASCII"
         if "칰" in code:
             return "PRINT"
@@ -60,43 +59,45 @@ class Boomlang:
 
             if cmd_type == "CMD":
                 self.data[self.ptr] += self.toNumber(line)
-
             elif cmd_type == "RESET":
                 self.data[self.ptr] = 0
-
             elif cmd_type == "PTR_RIGHT":
                 self.ptr = (self.ptr + 1) % len(self.data)
-
             elif cmd_type == "PTR_LEFT":
                 self.ptr = (self.ptr - 1) % len(self.data)
-
             elif cmd_type == "PRINT":
                 print(self.data[self.ptr], end="")
-
             elif cmd_type == "PRINT_ASCII":
                 print(chr(self.data[self.ptr]), end="")
-
             elif cmd_type == "NEWLINE":
                 print()
-
             elif cmd_type == "LOOP_START":
                 if self.data[self.ptr] == 0:
                     index = loop_stack[index]
-
             elif cmd_type == "LOOP_END":
                 if self.data[self.ptr] != 0:
                     index = loop_stack[index]
-
             elif cmd_type == "IF":
-                # 구문 형태: 쿵 붐붐~붐 (A==B면 다음줄 실행)
                 cond = line.replace("쿵", "").strip()
                 if "~" not in cond:
                     raise SyntaxError("조건문 쿵 구문 오류 (A~B 형태 필요)")
                 left, right = cond.split("~")
                 if self.toNumber(left) != self.toNumber(right):
-                    index += 1  # 조건 불만족 시 다음 줄 skip
-
+                    index += 1
             elif cmd_type == "END":
                 sys.exit(0)
 
             index += 1
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("사용법: python boomlang.py <파일>")
+        sys.exit(1)
+
+    filename = sys.argv[1]
+    with open(filename, "r", encoding="utf-8") as f:
+        code = f.read()
+
+    interpreter = BoomLang()
+    interpreter.compile(code)
